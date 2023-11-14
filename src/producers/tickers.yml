@@ -1,0 +1,10 @@
+subscriptions:
+  - AAPL    # Apple Inc
+  - AMZN    # Amazon
+  - TSLA    # Tesla 
+  - MSFT    # Microsoft Corporation
+  - META    # Meta Platforms, Inc.
+  - GOOGL   # Alphabet Inc.
+  - CFLT    # Confluent, Inc.
+  - BINANCE:BTCUSDT
+  - IC MARKETS:1

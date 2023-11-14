@@ -1,0 +1,12 @@
+
+# Data Format from Producer
+data=b'{"data":[{"c":null,"p":34175.45,"s":"BINANCE:BTCUSDT","t":1699013236489,"v":0.0007}],"type":"trade"}'
+{"data":[{"c":null,"p":34189.09,"s":"BINANCE:BTCUSDT","t":1699013287777,"v":0.01812}
+         
+data=b'{"data":[{"c":["1","24"],"p":218.44,"s":"TSLA","t":1699013331935,"v":100},
+{"c":null,"p":34186.72,"s":"BINANCE:BTCUSDT","t":1699013331814,"v":0.00019},
+{"c":null,"p":34186.72,"s":"BINANCE:BTCUSDT","t":1699013332065,"v":0.01548},
+{"c":["1","8","24","12"],"p":173.6,"s":"AAPL","t":1699013332308,"v":45},
+{"c":null,"p":34186.73,"s":"BINANCE:BTCUSDT","t":1699013332486,"v":0.049}],"type":"trade"}'
+
+[`s`, `t`, `c`, `p`, `v`].;

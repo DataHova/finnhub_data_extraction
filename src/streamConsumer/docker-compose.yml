@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+  spark-master:
+    image: bitnami/spark:3.5
+    container_name: spark-master
+    command: /opt/bitnami/scripts/spark/entrypoint.sh /opt/bitnami/scripts/spark/run.sh master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      - spark-master-data:/bitnami/spark/data
+
+  spark-worker-1:
+    image: bitnami/spark:3.5
+    container_name: spark-worker-1
+    command: /opt/bitnami/scripts/spark/entrypoint.sh /opt/bitnami/scripts/spark/run.sh worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    depends_on:
+      - spark-master
+    volumes:
+      - spark-worker-1-data:/bitnami/spark/data
+
+  spark-worker-2:
+    image: bitnami/spark:3.5
+    container_name: spark-worker-2
+    command: /opt/bitnami/scripts/spark/entrypoint.sh /opt/bitnami/scripts/spark/run.sh worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    depends_on:
+      - spark-master
+    volumes:
+      - spark-worker-2-data:/bitnami/spark/data
+
+volumes:
+  spark-master-data:
+  spark-worker-1-data:
+  spark-worker-2-data:
