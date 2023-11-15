@@ -2,8 +2,10 @@ import websocket
 from websocket._app import WebSocketApp
 from websocket._logging import enableTrace
 import yaml
-import os
-from dotenv import load_dotenv
+from core.logger import *
+from core import config as config
+import logging
+log = Logger("Helper Script for kafka Producer...", logging.INFO).get_logger()
 
 class FinnhubWebsocketClient:
     def __init__(self, api_key, ticker_filepath='tickers.yml'):
@@ -21,13 +23,13 @@ class FinnhubWebsocketClient:
         self.ws.on_open = self.on_open
 
     def on_message(self, ws, message):
-        print(message)
+        log.info(message)
 
     def on_error(self, ws, error):
-        print(error)
+        log.info(error)
 
     def on_close(self, ws):
-        print("### closed ###")
+        log.info("### closed ###")
 
     def load_subscriptions_from_yaml(self):
         with open(self.ticker_filepath, 'r') as file:
@@ -38,14 +40,13 @@ class FinnhubWebsocketClient:
         subscriptions = self.load_subscriptions_from_yaml()
         for symbol in subscriptions:
             command = '{"type":"subscribe","symbol":"%s"}' % symbol
-            print('Successfully opened a connection!')
+            log.info('Successfully opened a connection!')
             ws.send(command)
 
     def run(self):
         self.ws.run_forever()
 
 if __name__ == "__main__":
-    load_dotenv()
-    FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
+    FINNHUB_API_KEY = config.finnhub_api_key
     client = FinnhubWebsocketClient(FINNHUB_API_KEY)
     client.run()

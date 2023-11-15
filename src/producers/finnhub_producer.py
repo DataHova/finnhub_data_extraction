@@ -1,11 +1,10 @@
 from confluent_kafka import Producer
 import socket
 from finnhub_trade import FinnhubWebsocketClient
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
+from core.logger import *
+from core import config as config
+import logging
+log = Logger("Establishing Connection to the Finnhub websocket...", logging.INFO).get_logger()
 
 class KafkaProducerWrapper:
     def __init__(self, conf, topic):
@@ -14,9 +13,9 @@ class KafkaProducerWrapper:
 
     def acked(self, err, msg):
         if err is not None:
-            print("Failed to deliver message: %s: %s" % (str(msg), str(err)))
+            log.info("Failed to deliver message: %s: %s" % (str(msg), str(err)))
         else:
-            print("Message produced: %s" % (str(msg)))
+            log.info("Message produced: %s" % (str(msg)))
 
     def produce_message(self, message):
         self.producer.produce(self.topic, value=message, callback=self.acked)
@@ -38,15 +37,15 @@ class EnhancedFinnhubClient(FinnhubWebsocketClient):
 
 if __name__ == "__main__":
     # Kafka Setup
-    topic = os.getenv('topic')
+    topic = config.topic
     conf = {
-        'bootstrap.servers': 'localhost:9092',
+        'bootstrap.servers': config.bootstrap_servers,
         'client.id': socket.gethostname()
     }
     kafka_producer = KafkaProducerWrapper(conf, topic)
 
     # Finnhub client setup
-    FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
+    FINNHUB_API_KEY = config.finnhub_api_key
     client = EnhancedFinnhubClient(FINNHUB_API_KEY, kafka_producer.produce_message)
     client.run()
 

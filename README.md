@@ -1,12 +1,21 @@
 # finnhub_data_extraction
 This is a sample Repo for extracting data from finnhub using API
 
+## install poetry
+`pip3 install poetry`
+
+## start a new shell and activate the virtual environment.
+`poetry shell`
+
 ## Run the docker compose file
-`docker compose -f zk-single-kafka-multiple.yml up`
+`docker compose -f zk-single-kafka-multiple.yml up -d`
+
+## Enable the relative path
+`export PYTHONPATH="${PYTHONPATH}:/path/to/your/project/"`
 
 ## Run producer and consumer codes
-- `poetry run python3 finnhub_producer.py`
-- `poetry run python3 finnhub_consumer.py`
+- `poetry run python3 -m finnhub_producer`
+- `poetry run python3 -m finnhub_consumer`
 
 ## Run Spark Job
 

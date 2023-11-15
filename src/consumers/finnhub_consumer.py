@@ -1,10 +1,9 @@
 from confluent_kafka import Consumer, KafkaError
 import socket
-import os
-
-from dotenv import load_dotenv
-load_dotenv()
-
+import logging
+from core.logger import *
+from core import config as config
+log = Logger("Establishing Connection to the Kafka Producer...", logging.INFO).get_logger()
 
 class KafkaConsumerWrapper:
     def __init__(self, conf, topic, message_callback=None):
@@ -21,15 +20,15 @@ class KafkaConsumerWrapper:
         if msg.error():
             # Handle errors that occur while consuming
             if msg.error().code() == KafkaError._PARTITION_EOF:
-                print("Reached end of partition")
+                log.info("Reached end of partition")
             else:
-                print("Error while consuming message:", msg.error())
+                log.info("Error while consuming message:", msg.error())
         else:
             if self.message_callback:
                 self.message_callback(msg)
             else:
                 # Default behavior if no callback is provided
-                print("Received message (key=%s, value=%s)" % (msg.key(), msg.value()))
+                log.info("Received message (key=%s, value=%s)" % (msg.key(), msg.value()))
 
     def consume_messages(self):
         try:
@@ -46,15 +45,15 @@ def print_message(msg):
 
 
 if __name__ == "__main__":
-    topic = os.getenv('topic')
-    group_id = os.getenv('groupid')
+    topic = config.topic
+    group_id = config.group_id
     conf = {
-        'bootstrap.servers': 'localhost:9092',
+        'bootstrap.servers': config.bootstrap_servers,
         'group.id': group_id,
         'enable.auto.commit': True,
         'session.timeout.ms': 6000,
         'client.id': socket.gethostname(),
-        'auto.offset.reset': 'earliest',
+        'auto.offset.reset': config.auto_offset_reset_earliest,
     }
 
     kafka_consumer = KafkaConsumerWrapper(conf, topic, message_callback=print_message)

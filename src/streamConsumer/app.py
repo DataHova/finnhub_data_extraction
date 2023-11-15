@@ -3,22 +3,28 @@ from pyspark.sql.types import StringType
 from pyspark.sql.types import *
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType, DoubleType, LongType
 from pyspark.sql.functions import from_json, col
-import os
+from core.logger import *
+from core import config as config
 
-from dotenv import load_dotenv
-load_dotenv()
-
-topic = os.getenv('topic')
 
 # Create a Spark Session with the Kafka package included
 spark = SparkSession \
     .builder \
-    .master("spark://localhost:7077") \
+    .master("local[*]") \
     .appName("KafkaStreamProcessor") \
     .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0") \
     .getOrCreate()
-    # .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1") \
     
+    #  .master("spark://spark-master/172.27.0.2:7077") \
+    # .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1") \
+    # .master("spark://spark-master/172.27.0.2:7077") \
+    # spark-master/172.27.0.2:7077
+    # .master("spark://master:7077")
+    # .master("local[*]") \
+
+ # Spark Context
+sc = spark.sparkContext
+sc.setLogLevel('ERROR')
 
 # Define the schema for the nested 'data' array
 data_schema = StructType([
@@ -38,9 +44,9 @@ schema = StructType([
 # Read from Kafka
 kafkaStreamDF = spark.readStream \
     .format("kafka") \
-    .option("kafka.bootstrap.servers", "localhost:9092") \
-    .option("subscribe", topic) \
-    .option("startingOffsets", "earliest") \
+    .option("kafka.bootstrap.servers", config.bootstrap_servers) \
+    .option("subscribe", config.topic) \
+    .option("startingOffsets", config.auto_offset_reset_earliest) \
     .option("header", "true") \
     .load()
 #  .schema(schema) \
@@ -65,20 +71,19 @@ parsed_df = kafkaStreamDF \
               
 
 # Process and start the streaming query
-query = parsed_df.writeStream \
-                .outputMode("append") \
-                .format("console") \
-                .start() \
-                .awaitTermination()
+# query = parsed_df.writeStream \
+#                 .outputMode("append") \
+#                 .format("console") \
+#                 .start() \
+#                 .awaitTermination()
 
 
 # Consume and Output the Stream
-# query = valuesDF.writeStream \
-#     .outputMode("append") \
-#     .format("console") \
-#     .start()
-
-# query.awaitTermination()
+query = kafkaStreamDF.writeStream \
+        .outputMode("append") \
+        .format("console") \
+        .start() \
+        .awaitTermination()
 
 
 
